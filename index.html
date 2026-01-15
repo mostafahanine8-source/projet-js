@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>EventOps – Backoffice</title>
+  <link rel="stylesheet" href="./styles.css" />
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <!-- jsPDF (PDF export) -->
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+</head>
+
+<body>
+  <!-- LOGIN -->
+  <section id="loginView" class="auth">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <div class="logo-mark">EO</div>
+        <div>
+          <div class="brand-name">EventOps</div>
+          <div class="brand-sub">Backoffice – VanillaJS</div>
+        </div>
+      </div>
+
+      <h1 data-i18n="login_title">Connexion</h1>
+      <p class="muted" data-i18n="login_hint">Utilise admin / admin</p>
+
+      <form id="loginForm" class="form">
+        <label class="field">
+          <span data-i18n="username">Utilisateur</span>
+          <input id="loginUser" autocomplete="Username" placeholder="admin" required />
+        </label>
+
+        <label class="field">
+          <span data-i18n="password">Mot de passe</span>
+          <input id="loginPass" type="Password" autocomplete="current-password" placeholder="admin" required />
+        </label>
+
+        <button class="btn primary" type="Submit" data-i18n="submit">Se connecter</button>
+        <div id="loginError" class="alert danger hidden"></div>
+      </form>
+
+      <div class="auth-footer">
+        <span class="pill">No framework</span>
+        <span class="pill">CRUD + Charts</span>
+        <span class="pill">CSV + PDF</span>
+      </div>
+    </div>
+  </section>
+ <form id="billetterieForm">
+
+    <input type="number" id="stock" name="stock" required>
+    <input type="number" id="vendus" name="vendus" required>
+
+    <p id="error-message" style="color:red; display:none;"></p>
+
+    <button type="submit">save</button>
+</form>
+
+
+
+  <!-- APP SHELL -->
+  <section id="appView" class="app hidden">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <div class="logo">
+          <div class="logo-mark">EO</div>
+          <div class="logo-text">
+            <div class="logo-title">EventOps</div>
+            <div class="logo-sub">Backoffice</div>
+          </div>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <button class="nav-item active" data-route="dashboard">
+          <span class="nav-dot"></span><span data-i18n="nav_dashboard">Dashboard</span>
+        </button>
+        <div class="nav-section" data-i18n="nav_management">Gestion</div>
+        <button class="nav-item" data-route="events">
+          <span class="nav-dot"></span><span data-i18n="nav_events">Événements</span>
+        </button>
+        <button class="nav-item" data-route="participants">
+          <span class="nav-dot"></span><span data-i18n="nav_participants">Participants</span>
+        </button>
+        <button class="nav-item" data-route="tickets">
+          <span class="nav-dot"></span><span data-i18n="nav_tickets">Billetterie</span>
+        </button>
+        <button class="nav-item" data-route="payments">
+          <span class="nav-dot"></span><span data-i18n="nav_payments">Paiements</span>
+        </button>
+        <button class="nav-item" data-route="stats">
+          <span class="nav-dot"></span><span data-i18n="nav_stats">Statistiques (logs)</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="mini-card">
+          <div class="mini-label" data-i18n="sidebar_user">Connecté</div>
+          <div class="mini-value" id="whoami">admin</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <!-- NAVBAR -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button id="burger" class="icon-btn" aria-label="menu">☰</button>
+          <div class="breadcrumbs">
+            <span class="crumb" id="crumb1">EventOps</span>
+            <span class="sep">/</span>
+            <span class="crumb strong" id="crumb2" data-i18n="nav_dashboard">Dashboard</span>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <select id="langSelect" class="select">
+            <option value="fr">FR</option>
+            <option value="en">EN</option>
+            <option value="ar">AR</option>
+          </select>
+          <button id="logoutBtn" class="btn ghost" data-i18n="logout">Déconnexion</button>
+        </div>
+      </header>
+
+      <!-- CONTENT -->
+      <div id="content" class="content"></div>
+
+      <footer class="footer">
+        <span>© <span id="year"></span> EventOps</span>
+        <span class="muted">VanillaJS • localStorage • Chart.js • jsPDF</span>
+      </footer>
+    </main>
+  </section>
+
+  <!-- MODAL (form create/edit) -->
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div class="modal-title" id="modalTitle">—</div>
+        <button class="icon-btn" id="modalClose" aria-label="close">✕</button>
+      </div>
+      <form id="modalForm" class="form modal-body"></form>
+      <div class="modal-foot">
+        <button class="btn ghost" id="modalCancel" type="button" data-i18n="cancel">Annuler</button>
+        <button class="btn primary" id="modalSave" type="submit" form="modalForm" data-i18n="save">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFIRM -->
+  <div id="confirm" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card small">
+      <div class="modal-head">
+        <div class="modal-title" data-i18n="confirm_title">Confirmation</div>
+        <button class="icon-btn" id="confirmClose" aria-label="close">✕</button>
+      </div>
+      <div class="modal-body">
+        <p id="confirmText" class="confirm-text">—</p>
+      </div>
+      <div class="modal-foot">
+        <button class="btn ghost" id="confirmNo" type="button" data-i18n="no">Non</button>
+        <button class="btn danger" id="confirmYes" type="button" data-i18n="yes">Oui</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
